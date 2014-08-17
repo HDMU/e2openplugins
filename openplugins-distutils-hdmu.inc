@@ -1,3 +1,3 @@
-require openplugins.inc
+require openplihdmu.inc
 
 inherit distutils-openplugins
