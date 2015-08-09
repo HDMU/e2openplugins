@@ -8,21 +8,26 @@ RDEPENDS_${PN} = "python-cheetah python-compression python-json python-unixadmin
 inherit gitpkgv
 PV = "0.1+git${SRCPV}"
 PKGV = "0.1+git${GITPKGV}"
-PR = "r0.72"
+PR = "r0.73"
 
 require openplugins-distutils-hdmu.inc
 
 # Just a quick hack to "compile" it
 do_compile() {
-	cheetah-compile -R --nobackup ${S}/plugin
-	python -O -m compileall ${S}
+    cheetah-compile -R --nobackup ${S}/plugin
+    python -O -m compileall ${S}
+    for f in $(find ${S}/locale -name *.po ); do
+        l=$(echo ${f%} | sed 's/\.po//' | sed 's/.*locale\///')
+        mkdir -p ${S}/plugin/locale/${l%}/LC_MESSAGES
+        msgfmt -o ${S}/plugin/locale/${l%}/LC_MESSAGES/OpenWebif.mo ./locale/$l.po
+    done
 }
 
 PLUGINPATH = "/usr/lib/enigma2/python/Plugins/Extensions/${MODULE}"
 do_install_append() {
-	install -d ${D}${PLUGINPATH}
-	cp -rp ${S}/plugin/* ${D}${PLUGINPATH}
-	find ${D}${PLUGINPATH} -name '*.py' -exec rm {} \;
+    install -d ${D}${PLUGINPATH}
+    cp -rp ${S}/plugin/* ${D}${PLUGINPATH}
+    find ${D}${PLUGINPATH} -name '*.py' -exec rm {} \;
 }
 
 FILES_${PN} = "${PLUGINPATH}"
